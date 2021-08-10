@@ -4,8 +4,9 @@ const mongoose = require('mongoose');
 
 const app = express();
 
-app.use('/', require('./Routes/route'))
-app.use('/Users', require('./Routes/Users'));
+// use a convention like app.use("/api/users", users);
+app.use('/', require('./Routes/route')) // this line is redundant.
+app.use('/Users', require('./Routes/Users'));// extract require() in to a const
 
 app.use(express.urlencoded({extended: false}));
 
