@@ -1,12 +1,12 @@
 const express = require("express")
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
-
+const users =  require('./Routes/Users');
 const app = express();
 
 // use a convention like app.use("/api/users", users);
-app.use('/', require('./Routes/route')) // this line is redundant.
-app.use('/Users', require('./Routes/Users'));// extract require() in to a const
+
+app.use('/api/users',users);// extract require() in to a const
 
 app.use(express.urlencoded({extended: false}));
 
