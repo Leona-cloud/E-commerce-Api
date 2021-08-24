@@ -13,7 +13,7 @@ app.use(express.json());
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use('/api/users', users);
-app.use('/api/login', login);
+
 
 dotenv.config();
 
