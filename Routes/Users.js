@@ -1,18 +1,19 @@
 const express = require('express');
-const Joi = require('joi');
 const router = express.Router();
-const User = require('../Model/User')
+const User = require('../Model/User');
+const { userSchema } = require('../Authentication/Auth');
+const  Joi = require('@hapi/joi');
 
-router.get('/register', async(req, res)=>{
-    const user = await User.find();
-    res.send(user);
-})
 
 router.post('/register', async(req, res)=>{
-  
+    const validation = userSchema.validate(req.body, {
+        abortEarly: false
+    });
+    return res.send(validation);
+
     const user = new User({
-        fullName: req.body.fullName,
-        altAdress: req.body.altAdress,
+        userName: req.body.userName,
+        altAddress: req.body.altAddress,
         phoneNumber: req.body.phoneNumber,
         Address: req.body.Address,
         Email: req.body.Email,
@@ -36,8 +37,10 @@ router.post('/register', async(req, res)=>{
     } catch (ex) {
         console.log(ex.message);
     }
+
    
 });
+
 
 router.post("/login", async(req, res)=>{
   
@@ -54,8 +57,6 @@ router.post("/login", async(req, res)=>{
         console.log(ex.message);
     }
 });
-
-
 
 
 
