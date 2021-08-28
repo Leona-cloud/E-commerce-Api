@@ -11,8 +11,8 @@ const User =  mongoose.model('User', new mongoose.Schema({
     phoneNumber: {
         type: Number,
         required: true,
-        minlenght: 12,
-        maxlenght: 12
+        minlength: 12,
+        maxlength: 12
     },
     email: {
         type: String,
@@ -23,14 +23,14 @@ const User =  mongoose.model('User', new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        minlenght: 8,
-        maxlenght: 12
+        minlength: 8,
+        maxlength: 12
     },
     password2: {
         type: String,
         required: true,
-        minlenght: 8,
-        maxlenght: 12
+        minlength: 8,
+        maxlength: 12
     },
     address: {
         type: String,
@@ -60,3 +60,5 @@ function validateUser(user){
 
 module.exports.User = User;
 module.exports.validate = validateUser;
+
+
