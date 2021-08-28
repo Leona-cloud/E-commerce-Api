@@ -44,22 +44,6 @@ router.post('/register', async(req, res)=>{
 
 
 
-router.post("/login", async(req, res)=>{
-    
-    const login = new User({
-        email: req.body.email,
-        password: req.body.password
-    })
-    try {
-        const result = await login;
-        console.log(result);
-        res.send("logged in");
-        }
-        catch (ex) {
-        console.log(ex.message);
-    }
-});
-
 
 
 
