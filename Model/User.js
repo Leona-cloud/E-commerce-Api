@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const Joi = require('joi');
 
 
-const userSchema = new mongoose.Schema({
+const User =  mongoose.model('User', new mongoose.Schema({
     userName: {
         type: String,
         required: true,
@@ -13,10 +14,11 @@ const userSchema = new mongoose.Schema({
         minlenght: 12,
         maxlenght: 12
     },
-    Email: {
+    email: {
         type: String,
         required: true,
         lowercase: true,
+        unique: true
     },
     password: {
         type: String,
@@ -30,7 +32,7 @@ const userSchema = new mongoose.Schema({
         minlenght: 8,
         maxlenght: 12
     },
-    Address: {
+    address: {
         type: String,
         required: true
     },
@@ -38,10 +40,22 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     }
-});
+}));
 
 
+function validateUser(user){
+    const schema = {
+        userName: Joi.string().required(),
+        address: Joi.string().required(),
+        altAddress: Joi.string().required(),
+        phoneNumber: Joi.number().required(),
+        email: Joi.string().required().trim().lowercase().email(),
+        password: Joi.string().required().min(8).max(12),
+        password2: Joi.ref('password'),
+    }
+     schema.validate(validateUser);
+}
 
-module.exports = mongoose.model('User', userSchema);
 
-
+module.exports.User = User;
+module.exports.validate = validateUser;
