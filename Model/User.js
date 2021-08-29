@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
 const Joi = require('joi');
 
 
@@ -7,11 +6,13 @@ const User =  mongoose.model('User', new mongoose.Schema({
     userName: {
         type: String,
         required: true,
+        minlength: 5,
+        maxlength: 12
     },
     phoneNumber: {
-        type: Number,
+        type: String,
         required: true,
-        minlength: 12,
+        minlength: 11,
         maxlength: 12
     },
     email: {
@@ -29,7 +30,7 @@ const User =  mongoose.model('User', new mongoose.Schema({
     password2: {
         type: String,
         required: true,
-        minlength: 8,
+         minlength: 8,
         maxlength: 12
     },
     address: {
@@ -45,20 +46,27 @@ const User =  mongoose.model('User', new mongoose.Schema({
 
 function validateUser(user){
     const schema = Joi.object({
-        userName: Joi.string().required(),
+        userName: Joi.string().required().min(5).max(20),
         address: Joi.string().required(),
         altAddress: Joi.string().required(),
-        phoneNumber: Joi.number().required(),
+        phoneNumber: Joi.string().required().min(11).max(11),
         email: Joi.string().required().trim().lowercase().email(),
         password: Joi.string().required().min(8).max(12),
         password2: Joi.ref('password'),
-    }); 
+    })
+    .with('password', 'password2 ');
         
-     return schema.validate(validateUser);
+     return schema.validate(user);
 };
 
+function loginValidation(user){
+    const logSchema = Joi.object({
+        email: Joi.string().required().trim().lowercase().email(),
+        password: Joi.string().required().min(8).max(12),
+    })
+    return logSchema.validate(user)
+}
 
 module.exports.User = User;
 module.exports.validate = validateUser;
-
-
+module.exports.validation = loginValidation;
