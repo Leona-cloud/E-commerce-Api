@@ -1,4 +1,6 @@
+const _ = require('lodash');
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const {User, validate}= require('../Model/User');
 const  Joi = require('joi');
@@ -9,17 +11,9 @@ router.post('/register', async(req, res)=>{
     if (error) return res.status(400).send(error.details[0].message);
 
    let user = await User.findOne({email: req.body.email});
-   if (user) return res.status(400).send('User registered');
+   if (user) return res.status(400).send('User already registered');
 
-     user = new User({
-        userName: req.body.userName,
-        altAddress: req.body.altAddress,
-        phoneNumber: req.body.phoneNumber,
-        address: req.body.address,
-        email: req.body.email,
-       password: req.body.password,
-        password2: req.body.password2
-    });
+     user = new User(_.pick(req.body, ['userName', 'address', 'altAddress', 'email', 'phoneNumber', 'password', 'password2']));
     const password = req.body.password;
     const password2 = req.body.password2;
     if(password !== password2){
@@ -27,19 +21,25 @@ router.post('/register', async(req, res)=>{
             res.send("Invalid make sure passwords match");
         }catch (ex){
             console.log(ex.message);
-        }
-    }
+        };
+    };
    
     try {
         const result = await user.save();
         console.log(result);
-        res.send(user);
+        res.send(_.pick(user, ['_id', 'userName', 'email']));
     } catch (ex) {
         console.log(ex.message);
     }
 
    
 });
+
+
+
+
+
+module.exports = router;
 
 
 
