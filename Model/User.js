@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Joi = require('joi');
-
+const PasswordComplexity = require("joi-password-complexity");
 
 const User =  mongoose.model('User', new mongoose.Schema({
     userName: {
@@ -21,17 +21,20 @@ const User =  mongoose.model('User', new mongoose.Schema({
         lowercase: true,
         unique: true
     },
-    password: {
-        type: String,
-        required: true,
-        minlength: 8,
-        maxlength: 12
-    },
+    password: new PasswordComplexity({
+        min: 8,
+        max: 25,
+        lowercase: 1,
+        uppercase: 1,
+        numeric: 1,
+        symbol: 1,
+        requirementCount: 4
+    }),
     password2: {
         type: String,
         required: true,
          minlength: 8,
-        maxlength: 12
+        maxlength: 1024
     },
     address: {
         type: String,
@@ -51,7 +54,15 @@ function validateUser(user){
         altAddress: Joi.string().required(),
         phoneNumber: Joi.string().required().min(11).max(11),
         email: Joi.string().required().trim().lowercase().email(),
-        password: Joi.string().required().min(8).max(12),
+        password: new PasswordComplexity({
+            min: 8,
+            max: 25,
+            lowercase: 1,
+            uppercase: 1,
+            numeric:1,
+            symbol: 1,
+            requirementCount: 4
+        }),
         password2: Joi.ref('password'),
     })
     .with('password', 'password2 ');
