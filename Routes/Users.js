@@ -1,5 +1,8 @@
 const _ = require('lodash');
+const jwt = require('jsonwebtoken');
+const config = require('config');
 const express = require('express');
+const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const router = express.Router();
 const {User, validate}= require('../Model/User');
@@ -14,7 +17,12 @@ router.post('/register', async(req, res)=>{
    if (user) return res.status(400).send('User already registered');
 
      user = new User(_.pick(req.body, ['userName', 'address', 'altAddress', 'email', 'phoneNumber', 'password', 'password2']));
-    const password = req.body.password;
+    
+    const salt = await bcrypt.genSalt(10);
+     user.password = await bcrypt.hash(user.password, salt);
+     user.password2 = await bcrypt.hash(user.password2, salt);
+
+     const password = req.body.password;
     const password2 = req.body.password2;
     if(password !== password2){
         try{
@@ -27,21 +35,14 @@ router.post('/register', async(req, res)=>{
     try {
         const result = await user.save();
         console.log(result);
-        res.send(_.pick(user, ['_id', 'userName', 'email']));
+        const token = user.generateAuthToken();
+        res.header('x-auth-token', token).send(_.pick(user, ['_id', 'userName', 'email']));
     } catch (ex) {
         console.log(ex.message);
     }
 
    
 });
-
-
-
-
-
-module.exports = router;
-
-
 
 
 
