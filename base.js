@@ -4,7 +4,8 @@ const config = require('config');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const users = require('./Routes/Users');
-const login = require('./Routes/login')
+const login = require('./Routes/login');
+const product = require('./Routes/product');
 
 
 const app = express();
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use('/api/users', users);
 app.use('/api/user', login);
+app.use('/api/product', product);
 
 if(!config.get('jwtPrivateKey')){
     console.log('Fatal Error : jwtPrivateKey is not defined');
