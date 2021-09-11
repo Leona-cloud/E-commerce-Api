@@ -1,3 +1,4 @@
+const auth = require('../middleware/auth')
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 const config = require('config');
@@ -8,6 +9,15 @@ const router = express.Router();
 const {User, validate}= require('../Model/User');
 const  Joi = require('joi');
 
+router.get('/me', auth, async(req, res)=>{
+    try {
+        const user = await User.findById(req.user._id).select('-password');
+        res.send(user); 
+    } catch (ex) {
+        res.status(500).send('Something Failed.....')
+    }
+    
+});
 
 router.post('/register', async(req, res)=>{
     const { error } = validate(req.body);
