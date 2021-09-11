@@ -1,12 +1,29 @@
-const Joi = require('joi');
 const mongoose = require('mongoose');
+const Joi = require('joi');
 
-const prodSchema = new mongoose.Schema({
-    itemName:{
-        type: String
-    },
-    Description: {
+const productSchema = new mongoose.Schema({
+    productName: {
         type: String,
         required: true,
+    },
+    amountAvail: {
+        type: Number,
+        required: true
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    Price: {
+        type: String,
+        required: true,
+    },
+    discount: {
+        type: String,
     }
-})
+});
+
+const Product = mongoose.model('Product', productSchema);
+
+
+module.exports.Product = Product;
