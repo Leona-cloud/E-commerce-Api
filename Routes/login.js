@@ -8,6 +8,8 @@ const  Joi = require('joi');
 
 
 router.post("/login", async(req, res)=>{
+    req.header
+
     const { error } = validation(req.body);
     if (error) return res.status(400).send(error.details[0].message);
     
