@@ -6,7 +6,7 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    amountAvail: {
+    amountAvail: { // quantityInStock :
         type: Number,
         required: true
     },

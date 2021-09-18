@@ -8,7 +8,7 @@ const  Joi = require('joi');
 
 
 router.post("/login", async(req, res)=>{
-    req.header
+    req.header // why is this hanging here
 
     const { error } = validation(req.body);
     if (error) return res.status(400).send(error.details[0].message);
@@ -17,7 +17,8 @@ router.post("/login", async(req, res)=>{
     if (!user) return res.status(400).send('User not registered please sign up');
      
     const validPassword = await bcrypt.compare(req.body.password, user.password);
-    if(!validPassword) return res.status(400).send('Invalid password');
+    if(!validPassword) return res.status(400).send('Invalid password'); // you don't want to say what really went
+    //wrong.. "invalid email or password "
     
     const token = user.generateAuthToken();
     res.send(token);
