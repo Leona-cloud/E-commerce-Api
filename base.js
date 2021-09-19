@@ -14,8 +14,8 @@ const app = express();
 app.use(express.json());
 
 app.use(express.urlencoded({extended: true}));
-app.use('/api/users', users);
-app.use('/api/user', login);
+app.use('/api/auth', users);
+app.use('/api/auth', login);
 app.use('/api/product', product);
 
 if(!config.get('jwtPrivateKey')){
@@ -30,7 +30,6 @@ mongoose.connect(process.env.DB_CONNECT,
     useUnifiedTopology: true})
     .then(()=> console.log("connected"))
     .catch(err => console.error("unable to connect", err));
-
 
 
 
