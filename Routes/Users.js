@@ -11,7 +11,7 @@ const  Joi = require('joi');
 
 router.get('/me', auth, async(req, res)=>{
     try {
-        const user = await User.findById(req.user._id).select('-password');
+        const user = await User.findById(req.user._id).populate('cart').select('userName email');
         res.send(user); 
     } catch (ex) {
         res.status(500).send('Something Failed.....')
@@ -35,12 +35,7 @@ router.post('/register', async(req, res)=>{
      const password = req.body.password;
     const password2 = req.body.password2;
     if(password !== password2){
-        try{ //coconut head... why this try catch
-            res.send("Invalid make sure passwords match");
-        }catch (ex){
-            console.log(ex.message);
-        };
-        // if the passwords don't match, you need to return.. so you dont save the new user.
+        return res.send("make sure passwords match");
     };
    
     try {
