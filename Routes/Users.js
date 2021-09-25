@@ -11,7 +11,7 @@ const  Joi = require('joi');
 
 router.get('/me', auth, async(req, res)=>{
     try {
-        const user = await User.findById(req.user._id).populate('cart').select('userName email');
+        const user = await User.findById(req.user._id).select('userName email');
         res.send(user); 
     } catch (ex) {
         res.status(500).send('Something Failed.....')
