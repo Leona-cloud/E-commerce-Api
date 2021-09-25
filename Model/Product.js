@@ -42,7 +42,7 @@ const Product = mongoose.model('Product', productSchema);
 function productValidation(product){
     const schema = Joi.object({
         productName: Joi.string().required().trim().lowercase(),
-        amountAvail: Joi.string().required().min(0).max(12),
+        quantityInStock: Joi.string().required().min(0).max(12),
         description: Joi.string().required(),
         price: Joi.string().required()
     })
