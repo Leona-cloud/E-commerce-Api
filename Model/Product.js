@@ -1,55 +1,65 @@
+const { required } = require('joi');
 const mongoose = require('mongoose');
-const Joi = require('joi');
-const jwt = require('jsonwebtoken');
-const config = require('config');
+
 
 const productSchema = new mongoose.Schema({
-    
-    productName: {
-        type: String,
-        required: true,
-    },
-    quantityInStock: {
-        type: Number,
-        required: true
-    },
-    description: {
-        type: String,
-        required: true
-    },
-    price: {
-        type: Number,
-        required: true,
-    },
-    discount: {
-        type: String,
-        required: true
-    },
-    color: {
-        type: String,
-        required: true
-    }
-   
-},{timestamps: true});
-productSchema.methods.generateAuthToken = function (){
-    const token = jwt.sign({_id: this._id}, config.get('jwtPrivateKey'));
-    return token;
-}
+  name: {
+      type: String,
+      required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  richDescription: {
+      type: String,
+      default: " "
+  },
+  image: {
+      type: String,
+      default: ' '
+  },
+  brand: {
+      type: String,
+      required: true
+  },
+  price: {
+      type: Number,
+      default : 0
+  },
+  category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
+      required: true
+  },
+  countInStock: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: 255
+  },
+  rating: {
+      type: Number,
+      default: 0
+  },
+  numReviews: {
+      type: Number,
+      default:0
+  },
+  isFeatured: {
+      type: Boolean,
+      default: false
+  },
+  dateCreated: {
+      type: Date,
+      default: Date.now
+  }
+})
 
-const Product = mongoose.model('Product', productSchema);
+exports.Product = mongoose.model('Product', productSchema);
 
 
-function productValidation(product){
-    const schema = Joi.object({
-        productName: Joi.string().required().trim().lowercase(),
-        quantityInStock: Joi.string().required().min(0).max(12),
-        description: Joi.string().required(),
-        price: Joi.string().required()
-    })
-    return schema.validate(product)
-};
 
 
-module.exports.Product = Product;
 
-module.exports.validP = productValidation;
+
