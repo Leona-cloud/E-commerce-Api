@@ -1,27 +1,25 @@
 const express = require("express");
 const dotenv = require('dotenv');
-const config = require('config');
-const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const users = require('./Routes/Users');
-const login = require('./Routes/login');
+const users = require('./Routes/Auth');
 const product = require('./Routes/product');
+const categories = require('./Routes/categories');
 
 
 const app = express();
 
+if(!process.env.ecommerce_jwtPrivateKey){
+    console.error('FATAL ERROR: jwtPrivateKey not defined');
+    process.exit(1)
+}
 
 app.use(express.json());
 
 app.use(express.urlencoded({extended: true}));
 app.use('/api/auth', users);
-app.use('/api/auth', login);
+app.use('/api/categories', categories)
 app.use('/api/product', product);
 
-if(!config.get('jwtPrivateKey')){
-    console.log('Fatal Error : jwtPrivateKey is not defined');
-    process.exit(1);
-}
 
 dotenv.config();
 
