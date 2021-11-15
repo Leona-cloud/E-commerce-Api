@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const config = require('config');
+const dotenv = require('dotenv').config()
 const mongoose = require('mongoose');
 const Joi = require('joi');
 const PasswordComplexity = require("joi-password-complexity");
@@ -45,14 +45,21 @@ const userSchema =  new mongoose.Schema({
     altAddress: {
         type: String,
         required: true
-    }
+    },
+    isAdmin:{
+        type: Boolean,
+        default: false
+    },
+   
 });
 userSchema.methods.generateAuthToken = function (){
-    const token = jwt.sign({_id: this._id}, config.get('jwtPrivateKey'));
+    const token = jwt.sign({_id: this._id, isAdmin: this.isAdmin}, process.env.ecommerce_jwtPrivateKey, {expiresIn: '1d'});
     return token;
 }
 
 const User = mongoose.model('User', userSchema);
+
+
 
 
 function validateUser(user){
