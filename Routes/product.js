@@ -21,12 +21,10 @@ router.get(`/`, auth, async (req, res) => {
 router.get("/:id", auth, async (req, res) => {
   const product = await Product.findById(req.params.id).populate("category");
   if (!product)
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Product with the given id doesn't exist ",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Product with the given id doesn't exist ",
+    });
 
   res.send(product);
 });
@@ -92,18 +90,25 @@ router.delete("/:id", [auth, admin], async (req, res) => {
   let product = await Product.findByIdAndRemove(req.params.id);
   try {
     if (!product) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "product with the given id does not exist",
-        });
+      return res.status(404).json({
+        success: false,
+        message: "product with the given id does not exist",
+      });
     } else {
       return res.json({ success: true, message: "product has been deleted" });
     }
   } catch (err) {
     res.status(400).json({ success: false, error: err });
   }
+});
+
+router.get("/get/count", async (req, res) => {
+  const productCount = await Product.countDocuments((count) => count);
+
+  if (!productCount) {
+    return res.status(400).json({ success: false });
+  }
+  res.send({ productCount: productCount });
 });
 
 router.get("/get/featured/:count", auth, async (req, res) => {
