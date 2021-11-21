@@ -42,14 +42,16 @@ router.post("/", auth, async (req, res) => {
 
   const resolvedCart = await cartIds;
 
-  const totalPrices = await Promise.all(resolvedCart.map(async (cartId)=>{
-    const cartItem = await Cart.findById(cartId).populate('product', 'price');
-    const totalPrice = await cartItem.product.price * cartItem.quantity;
+  const totalPrices = await Promise.all(
+    resolvedCart.map(async (cartId) => {
+      const cartItem = await Cart.findById(cartId).populate("product", "price");
+      const totalPrice = (await cartItem.product.price) * cartItem.quantity;
 
-    return totalPrice;
-  }))
+      return totalPrice;
+    })
+  );
 
-  const totalPrice = totalPrices.reduce((a,b) => a +b, 0)
+  const totalPrice = totalPrices.reduce((a, b) => a + b, 0);
 
   let order = new Order({
     Cart: resolvedCart,
@@ -77,38 +79,56 @@ router.put("/:id", [auth, admin], async (req, res) => {
     },
     { new: true }
   );
-  try{
-  if (!order) {
-    res.status(500).json({ success: false, message: "order does not exist" });
+  try {
+    if (!order) {
+      res.status(500).json({ success: false, message: "order does not exist" });
+    }
+    res.send(order);
+  } catch (err) {
+    res.status(400).json({ success: false, error: err });
   }
-  res.send(order);
-} catch (err) {
-  res.status(400).json({ success: false, error: err });
-}
 });
 
 router.delete("/:id", [auth, admin], async (req, res) => {
-  const order = await Order.findByIdAndRemove(
-    req.params.id,
-  );
+  const order = await Order.findByIdAndRemove(req.params.id);
   try {
     if (order) {
-      await order.Cart.map(async cartItem=>{
-        await Cart.findByIdAndRemove(cartItem)
-      })
-      return res
-        .status(404)
-        .json({
-          success: true,
-          message:"order has been deleted" ,
-        });
+      await order.Cart.map(async (cartItem) => {
+        await Cart.findByIdAndRemove(cartItem);
+      });
+      return res.status(404).json({
+        success: true,
+        message: "order has been deleted",
+      });
     } else {
-      return res.json({ success: false, message: "order with the given id does not exist" });
+      return res.json({
+        success: false,
+        message: "order with the given id does not exist",
+      });
     }
   } catch (err) {
     res.status(400).json({ success: false, error: err });
   }
+});
 
-})
+router.get("/get/totalSales", [auth, admin], async (req, res) => {
+  const totalSales = await Order.aggregate([
+    { $group: { _id: null, totalsales: { $sum: $totalPrice } } },
+  ]);
+  if (!totalSales) {
+    return res.status(400).json({ message: "total sales can't be generated" });
+  } else {
+    res.send({ totalsales: totalSales.pop().totalsales });
+  }
+});
+
+router.get("/get/count", async (req, res) => {
+  const orderCount = await Order.countDocuments((count) => count);
+
+  if (!orderCount) {
+    return res.status(400).json({ success: false });
+  }
+  res.send({ orderCount: orderCount });
+});
 
 module.exports = router;
