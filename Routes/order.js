@@ -7,21 +7,24 @@ const auth = require("../middleware/auth");
 
 router.get("/", [auth, admin], async (req, res) => {
   const orderList = await Order.find()
-    .populate("User", "name email phoneNumber")
-    .populate({ path: "Cart", populate: "product" })
+    .populate('user', 'name email phoneNumber')
+    .populate({ path: 'Cart', populate: 'product' })
     .sort({ dateOrdered: -1 });
   if (!orderList) {
-    res.status(500).json({ success: false, message: "order does not exist" });
+    return res.status(500).json({ success: false, message: "order does not exist" });
   }
   res.send(orderList);
 });
 
 router.get("/:id", [auth, admin], async (req, res) => {
   const order = await Order.findById(req.params.id)
-    .populate("User", "name email phoneNumber")
-    .populate("Cart");
+    .populate("user", "name email phoneNumber")
+    .populate({
+      path: "Cart",
+      populate: { path: "product", populate: "category" },
+    });
   if (!order) {
-    res.status(500).json({ success: false, message: "order does not exist" });
+   return  res.status(500).json({ success: false, message: "order does not exist" });
   }
   res.send(order);
 });
@@ -60,12 +63,12 @@ router.post("/", auth, async (req, res) => {
     country: req.body.country,
     status: req.body.status,
     totalPrice: totalPrice,
-    User: req.body.User,
+    user: req.body.user,
   });
 
   try {
     order = await order.save();
-    res.send(order);
+    return res.send(order);
   } catch (err) {
     return res.status(500).json({ success: false, message: err });
   }
@@ -113,7 +116,7 @@ router.delete("/:id", [auth, admin], async (req, res) => {
 
 router.get("/get/totalSales", [auth, admin], async (req, res) => {
   const totalSales = await Order.aggregate([
-    { $group: { _id: null, totalsales: { $sum: $totalPrice } } },
+    { $group: { _id: null, totalsales: { $sum: "$totalPrice" } } },
   ]);
   if (!totalSales) {
     return res.status(400).json({ message: "total sales can't be generated" });
@@ -129,6 +132,23 @@ router.get("/get/count", async (req, res) => {
     return res.status(400).json({ success: false });
   }
   res.send({ orderCount: orderCount });
+})
+
+
+
+router.get("/user/orders/:userid", [auth, admin], async (req, res) => {
+  const orderList = await Order.find({user: req.params.userid})
+  .populate({
+    path: "Cart",
+    populate: { path: "product", populate: "category" },
+  })
+    .sort({ dateOrdered: -1 });
+  if (!orderList) {
+   return res.status(500).json({ success: false, message: "order does not exist" });
+  }
+  res.send(orderList);
 });
 
+
 module.exports = router;
+
