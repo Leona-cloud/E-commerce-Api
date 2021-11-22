@@ -6,6 +6,34 @@ const express = require("express");
 const router = express.Router();
 const { Product } = require("../Model/Product");
 const { Category } = require("../Model/category");
+const multer = require("multer");
+
+const File_type= {
+  'image/png': 'png',
+  'image/jpeg': 'jpeg',
+  'image/jpg': 'jpg'
+}
+
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const isValid = File_type[file.mimetype]
+    let uploadError = new Error("invalid image type")
+    if(isValid){
+      uploadError = null
+    }
+    cb(uploadError, 'public/uploads')
+  },
+  filename: function (req, file, cb) {
+    const fileName = file.originalname.replace(' ', '-')
+    const extension = File_type[file.mimetype];
+    cb(null, `${fileName}-${Date.now()}.${extension}`)
+  }
+})
+
+const upload = multer({ storage: storage })
+
+
 
 router.get(`/`, auth, async (req, res) => {
   let filter = {};
@@ -29,31 +57,35 @@ router.get("/:id", auth, async (req, res) => {
   res.send(product);
 });
 
-router.post("/", [auth, admin], async (req, res) => {
+router.post("/", upload.single('image') , [auth, admin], async (req, res) => {
   const category = await Category.findById(req.body.category);
   if (!category) return res.status(400).send("Invalid category");
 
-  let product = new Product(
-    _.pick(req.body, [
-      "name",
-      "description",
-      " richDescription",
-      " image",
-      "brand",
-      "price",
-      "countInStock",
-      "category",
-      "rating",
-      "isFeatured",
-      "numReviews",
-    ])
-  );
+  
+  const file = req.file;
+  if(!file) return res.status(400).send('No image in the request')
 
+    const fileName = req.file.filename
+     const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`
+
+  let product = new Product({
+    name: req.body.name,
+    description: req.body.description,
+    richDescription: req.body.richDescription,
+    image: `${basePath}${fileName}`,
+    brand: req.body.brand,
+    price: req.body.price,
+    category: req.body.category,
+    countInStock: req.body.countInStock,
+    rating: req.body.rating,
+    numReviews: req.body.numReviews,
+    isFeatured: req.body.isFeatured,
+})
   try {
     product = await product.save();
-    res.send(product);
+   return res.send(product);
   } catch (err) {
-    res.status(400).json({ success: false, error: err });
+   return res.status(400).json({ success: false, error: err });
   }
 });
 
@@ -122,3 +154,4 @@ router.get("/get/featured/:count", auth, async (req, res) => {
 });
 
 module.exports = router;
+
